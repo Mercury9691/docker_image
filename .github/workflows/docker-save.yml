@@ -1,0 +1,26 @@
+name: Docker Image Saver
+
+on:
+  workflow_dispatch: # 手动触发
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Pull Docker Image
+        run: |
+          docker pull vllm/vllm-openai:deepseekv4-cu129
+          
+      - name: Save Image to Tar
+        run: |
+          docker save vllm/vllm-openai:deepseekv4-cu129 -o vllm_image.tar
+
+          tar -czvf vllm_image.tar.gz vllm_image.tar
+
+      - name: Upload to Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: vllm_image.tar.gz
+          tag_name: vllm-v4-download
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
